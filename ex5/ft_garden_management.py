@@ -19,7 +19,7 @@ class Plant():
 
 class GardenManager():
     def __init__(self) -> None:
-        self.__plants = []
+        self.__plants: list[Plant] = []
         self.__water_tank = 2
 
     def add_plant(self, plant: Plant) -> None:
@@ -46,7 +46,7 @@ is too high (max 12)\n")
         except PlantError as error:
             print(f"Error adding plant: {error}")
 
-    def water_plants(self):
+    def water_plants(self) -> None:
         print("Opening watering system")
         try:
             for p in self.__plants:
@@ -60,12 +60,32 @@ is too high (max 12)\n")
         finally:
             print("Closing watering system (cleanup)")
 
+    def check_health(self) -> None:
+        for plant in self.__plants:
+            try:
+                if plant.water_level > 10:
+                    raise WaterError(f"Water level {plant.water_level} \
+is too high (max 10)")
+                print(f"{plant.name}: healthy (water: {plant.water_level}, \
+sun: {plant.sun_hours})")
+            except WaterError as error:
+                print(f"Error checking {plant.name}:", error)
+
+    def error_recovery(self) -> None:
+        try:
+            if self.__water_tank <= 0:
+                raise GardenError("Not enough water in tank")
+        except GardenError as error:
+            print(f"Caught {error.__class__.__name__}: {error}")
+        finally:
+            print("System recovered and continuing...")
+
 
 def test_garden_management() -> None:
     print("=== Garden Management System ===\n")
 
     print("Adding plants to garden...")
-    tomato = Plant("tomato", 5, 8)
+    tomato = Plant("tomato", 4, 8)
     lettuce = Plant("lettuce", 10, 5)
     inv_name = Plant("", 5, 3)
     gm = GardenManager()
@@ -75,6 +95,14 @@ def test_garden_management() -> None:
 
     print("\nWatering plants...")
     gm.water_plants()
+
+    print("\nChecking plant health...")
+    gm.check_health()
+
+    print("\nTesting error recovery...")
+    gm.error_recovery()
+
+    print("\nGarden management system test complete!")
 
 
 if __name__ == "__main__":
